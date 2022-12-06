@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Assignment 4</title>
+</head>
+<body>
+
+<!-- Add a DOM container for React -->
+<div id="app"></div>
+<!-- Load React. -->
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<!-- Load Babel -->
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+<!-- Use React -->
+<script type="text/jsx">
+    // Setup React-placeholder
+    const app = document.getElementById("app");
+    let root = ReactDOM.createRoot(app);
+
+    // React-Components for Picsum-Assignment
+    function Image(props) {
+        return <img id={props.id} src={props.src} />
+    }
+
+    function SliderInput(props) {
+        return (
+            <React.Fragment>
+                <label htmlFor={props.label}>{props.label.charAt(0).toUpperCase() + props.label.slice(1)}:</label>
+                <input type="range" min={props.min} max={props.max}
+                       value={props.value} id={props.label}
+                       onChange={(e) => props.onchange(e)} 
+                       
+                />
+            </React.Fragment>
+        )
+    }
+
+    function CheckboxInput(props) {
+        return (
+            <React.Fragment>
+                <label htmlFor={props.label}>{props.label.charAt(0).toUpperCase() + props.label.slice(1)}:</label>
+                <input type="checkbox" id={props.label} onChange={props.onchange}
+                       checked={props.checked}
+                />
+            </React.Fragment>
+
+        )
+    }
+
+    function Button(props) {
+        return (
+            <input type={props.type} value={props.displayText} onClick={props.onclick}/>
+        )
+    }
+
+    class ImageForm extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+                width: 400,
+                height: 300,
+                grayscale: false,
+                fixRatio: false
+            };
+
+            this.handleWidthChange = this.handleWidthChange.bind(this);
+            this.handleHeightChange = this.handleHeightChange.bind(this);
+            this.handleGrayscaleChange = this.handleGrayscaleChange.bind(this);
+            this.getRandomImage = this.getRandomImage.bind(this);
+            this.handleFixRatioChange = this.handleFixRatioChange.bind(this);
+        }
+
+        handleWidthChange(width) {
+            if(this.state.fixRatio === false){
+                this.setState({width: width.target.value})
+            }
+            else{
+                this.setState({width: width.target.value})
+                this.setState({height: parseInt(width.target.value * this.state.fixRatio)}) 
+            }
+        }
+
+        handleHeightChange(height) {
+            if(this.state.fixRatio === false){
+                this.setState({height: height.target.value})
+            }
+            else{
+                this.setState({height: height.target.value})
+                this.setState({width: parseInt(height.target.value / this.state.fixRatio)}) 
+            }
+        }
+
+        handleGrayscaleChange(grayscale) {
+            this.setState((state, props) => {
+                if (state.grayscale) {
+                    return {grayscale: false};
+                }
+                else {
+                    return {grayscale: "on"}
+                }
+            })
+        }
+
+        handleFixRatioChange(fixRatio) {
+            this.setState((state, props) => {
+                if (state.fixRatio === false) {
+                    return {fixRatio: this.state.height/this.state.width}
+                }
+                else {
+                    return {fixRatio: false};
+                }
+            })
+        }
+
+        getRandomImage(e) {
+            e.preventDefault();
+            console.log(document.getElementById("grayscale").checked);
+            let myImage = document.getElementById(this.props.targetImage);
+            let targetURL = `https://picsum.photos/${this.state.width}/${this.state.height}`;
+            if (this.state.grayscale) {
+                targetURL += "?grayscale"
+            }
+            fetch(targetURL).then((response) => {
+                if (!response.ok) {
+                    throw new Error("Network response was not OK");
+                }
+                return response.blob();
+            }).then((myBlob) => {
+                URL.revokeObjectURL(myImage.src);
+                myImage.src = URL.createObjectURL(myBlob);
+            })
+        }
+        
+        render() {
+
+                  
+            return (
+                <form id={this.props.id}>
+
+                    <SliderInput label="width" min="100" max="800"
+                        value={this.state.width}
+                        onchange={this.handleWidthChange}
+                    />
+                    
+                    <SliderInput label="height" min="100" max="600"
+                        value={this.state.height}
+                        onchange={this.handleHeightChange}
+            
+                /> 
+                    <CheckboxInput label="grayscale"
+                                   checked={this.state.grayscale}
+                                   onchange={this.handleGrayscaleChange}
+                    />
+                    <CheckboxInput label="FixRatio"
+                                   checked={this.state.fixRatio}
+                                   onchange={this.handleFixRatioChange}
+                    />
+                    <Button type="submit" displayText="Get Image!" onclick={this.getRandomImage}/>
+                </form>
+            )
+        }
+    }
+
+    // Creating a fully encapsulated clock (not relevant for assignment, but might be helpful)
+    class Clock extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {date: new Date()};
+        }
+
+        componentDidMount() {
+            this.timerID = setInterval(
+                () => this.tick(), 1000
+            );
+        }
+
+        componentWillUnmount() {
+            clearInterval(this.timerID);
+        }
+
+        tick() {
+            this.setState({
+                date: new Date()
+            });
+        }
+
+        render() {
+            if (this.props.toLocal){
+                return (
+                    <div>
+                        <h2>It is {this.state.date.toLocaleTimeString()}</h2>
+                    </div>
+                )
+            }
+            else {
+                return (
+                    <div>
+                        <h2>It is {this.state.date.toUTCString().split(" ").slice(4).join(" ")}</h2>
+                    </div>
+                )
+            }
+        }
+    }
+
+    function App() {
+        return (
+            <div>
+                <Image id="react_picsum" src=""/>
+                <ImageForm id="randomImageForm" targetImage="react_picsum"/>
+                <Clock toLocal={true}/>
+                <Clock/>
+            </div>
+        )
+    }
+
+    // Render app into React-placeholder
+    root.render(<App/>);
+</script>
+
+</body>
+
+</html>

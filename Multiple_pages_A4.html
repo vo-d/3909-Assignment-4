@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!-- Add a DOM container for React -->
+<div id="app"></div>
+<!-- Load React. -->
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<!-- Load Babel -->
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+<!-- Load React-bootstrap -->
+<script src="https://cdn.jsdelivr.net/npm/react-bootstrap@next/dist/react-bootstrap.min.js"
+        crossorigin
+></script>
+<!-- Import Bootstrap CSS -->
+<link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
+        integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
+        crossorigin="anonymous"
+/>
+
+
+<!-- Use React -->
+<script type="text/jsx">
+    const react = React;
+    const app = document.getElementById("app");
+    let root = ReactDOM.createRoot(app);
+
+    // Put your components here use "ReactBootstrap." to access react-bootstrap components
+    // Example
+    function App() {
+        return <ReactBootstrap.Button>Example</ReactBootstrap.Button>
+    }
+
+  root.render(<App/>);
+</script>
+</body>
+</html>
