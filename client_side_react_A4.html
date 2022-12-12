@@ -165,53 +165,12 @@
     }
 
     // Creating a fully encapsulated clock (not relevant for assignment, but might be helpful)
-    class Clock extends React.Component {
-        constructor(props) {
-            super(props);
-            this.state = {date: new Date()};
-        }
-
-        componentDidMount() {
-            this.timerID = setInterval(
-                () => this.tick(), 1000
-            );
-        }
-
-        componentWillUnmount() {
-            clearInterval(this.timerID);
-        }
-
-        tick() {
-            this.setState({
-                date: new Date()
-            });
-        }
-
-        render() {
-            if (this.props.toLocal){
-                return (
-                    <div>
-                        <h2>It is {this.state.date.toLocaleTimeString()}</h2>
-                    </div>
-                )
-            }
-            else {
-                return (
-                    <div>
-                        <h2>It is {this.state.date.toUTCString().split(" ").slice(4).join(" ")}</h2>
-                    </div>
-                )
-            }
-        }
-    }
 
     function App() {
         return (
             <div>
                 <Image id="react_picsum" src=""/>
                 <ImageForm id="randomImageForm" targetImage="react_picsum"/>
-                <Clock toLocal={true}/>
-                <Clock/>
             </div>
         )
     }

@@ -28,56 +28,285 @@
 
 <!-- Use React -->
 <script type="text/jsx">
-
-    const react = React;
+    const {useState} = React
     const app = document.getElementById("app");
     let root = ReactDOM.createRoot(app);
-
     // Put your components here use "ReactBootstrap." to access react-bootstrap components
-    function ReactNav() {
+
+    class Clock extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {date: new Date()};
+        }
+
+        componentDidMount() {
+            this.timerID = setInterval(
+                () => this.tick(), 1000
+            );
+        }
+
+        componentWillUnmount() {
+            clearInterval(this.timerID);
+        }
+
+        tick() {
+            this.setState({
+                date: new Date()
+            });
+        }
+
+        render() {
+            if (this.props.toLocal){
+                return (
+                    <div>
+                        <h2>It is {this.state.date.toLocaleTimeString()}</h2>
+                    </div>
+                )
+            }
+            else {
+                return (
+                    <div>
+                        <h2>It is {this.state.date.toUTCString().split(" ").slice(4).join(" ")}</h2>
+                    </div>
+                )
+            }
+        }
+    }
+
+    function ClockApp(){
+        return(
+            <div>
+                <Clock toLocal={true}/>
+                <Clock/>
+            </div>
+        )
+    }
+
+    function Image(props) {
+        return <img id={props.id} src={props.src} />
+    }
+
+    function SliderInput(props) {
+        return (
+            <React.Fragment>
+                <label htmlFor={props.label}>{props.label.charAt(0).toUpperCase() + props.label.slice(1)}:</label>
+                <input type="range" min={props.min} max={props.max}
+                       value={props.value} id={props.label}
+                       onChange={(e) => props.onchange(e)}
+
+                />
+            </React.Fragment>
+        )
+    }
+
+    function CheckboxInput(props) {
+        return (
+            <React.Fragment>
+                <label htmlFor={props.label}>{props.label.charAt(0).toUpperCase() + props.label.slice(1)}:</label>
+                <input type="checkbox" id={props.label} onChange={props.onchange}
+                       checked={props.checked}
+                />
+            </React.Fragment>
+
+        )
+    }
+
+    function Button(props) {
+        return (
+            <input type={props.type} value={props.displayText} onClick={props.onclick}/>
+        )
+    }
+
+    class ImageForm extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+                width: 400,
+                height: 300,
+                grayscale: false,
+                fixRatio: false
+            };
+
+            this.handleWidthChange = this.handleWidthChange.bind(this);
+            this.handleHeightChange = this.handleHeightChange.bind(this);
+            this.handleGrayscaleChange = this.handleGrayscaleChange.bind(this);
+            this.getRandomImage = this.getRandomImage.bind(this);
+            this.handleFixRatioChange = this.handleFixRatioChange.bind(this);
+        }
+
+        handleWidthChange(width) {
+            if(this.state.fixRatio === false){
+                this.setState({width: width.target.value})
+            }
+            else{
+                this.setState({width: width.target.value})
+                this.setState({height: parseInt(width.target.value * this.state.fixRatio)})
+            }
+        }
+
+        handleHeightChange(height) {
+            if(this.state.fixRatio === false){
+                this.setState({height: height.target.value})
+            }
+            else{
+                this.setState({height: height.target.value})
+                this.setState({width: parseInt(height.target.value / this.state.fixRatio)})
+            }
+        }
+
+        handleGrayscaleChange(grayscale) {
+            this.setState((state, props) => {
+                if (state.grayscale) {
+                    return {grayscale: false};
+                }
+                else {
+                    return {grayscale: "on"}
+                }
+            })
+        }
+
+        handleFixRatioChange(fixRatio) {
+            this.setState((state, props) => {
+                if (state.fixRatio === false) {
+                    return {fixRatio: this.state.height/this.state.width}
+                }
+                else {
+                    return {fixRatio: false};
+                }
+            })
+        }
+
+        getRandomImage(e) {
+            e.preventDefault();
+            console.log(document.getElementById("grayscale").checked);
+            let myImage = document.getElementById(this.props.targetImage);
+            let targetURL = `https://picsum.photos/${this.state.width}/${this.state.height}`;
+            if (this.state.grayscale) {
+                targetURL += "?grayscale"
+            }
+            fetch(targetURL).then((response) => {
+                if (!response.ok) {
+                    throw new Error("Network response was not OK");
+                }
+                return response.blob();
+            }).then((myBlob) => {
+                URL.revokeObjectURL(myImage.src);
+                myImage.src = URL.createObjectURL(myBlob);
+            })
+        }
+
+        render() {
+
+
+            return (
+                <form id={this.props.id}>
+
+                    <SliderInput label="width" min="100" max="800"
+                                 value={this.state.width}
+                                 onchange={this.handleWidthChange}
+                    />
+
+                    <SliderInput label="height" min="100" max="600"
+                                 value={this.state.height}
+                                 onchange={this.handleHeightChange}
+
+                    />
+                    <CheckboxInput label="grayscale"
+                                   checked={this.state.grayscale}
+                                   onchange={this.handleGrayscaleChange}
+                    />
+                    <CheckboxInput label="FixRatio"
+                                   checked={this.state.fixRatio}
+                                   onchange={this.handleFixRatioChange}
+                    />
+                    <Button type="submit" displayText="Get Image!" onclick={this.getRandomImage}/>
+                </form>
+            )
+        }
+    }
+
+    // Creating a fully encapsulated clock (not relevant for assignment, but might be helpful)
+
+    function PicsumApp() {
+        return (
+            <div>
+                <Image id="react_picsum" src=""/>
+                <ImageForm id="randomImageForm" targetImage="react_picsum"/>
+            </div>
+        )
+    }
+
+    function NavItem(props){
+        return(
+            <button>
+                <ReactBootstrap.Nav.Link href={props.href} eventKey={props.eventKey}>{props.name}</ReactBootstrap.Nav.Link>
+            </button>
+            )
+    }
+
+
+
+    function ReactNav(props) {
         return (
           <ReactBootstrap.Nav
             activeKey="/home"
             onSelect={(selectedKey) => alert(`selected ${selectedKey}`)}
           >
-            <ReactBootstrap.Nav.Item>
-              <ReactBootstrap.Nav.Link href="/home">Active</ReactBootstrap.Nav.Link>
-            </ReactBootstrap.Nav.Item>
-            <ReactBootstrap.Nav.Item>
-              <ReactBootstrap.Nav.Link eventKey="link-1">Link</ReactBootstrap.Nav.Link>
-            </ReactBootstrap.Nav.Item>
-            <ReactBootstrap.Nav.Item>
-              <ReactBootstrap.Nav.Link eventKey="link-2">Link</ReactBootstrap.Nav.Link>
-            </ReactBootstrap.Nav.Item>
-            
+              <NavItem href="/Multiple_pages_A4.html" name="Active"/>
+              <NavItem href="./stopwatch.html" eventKey="link-1" name="Stopwatch"/>
+              <NavItem href="./client_side_react_A4.html" eventKey="link-2" name="Picsum"/>
           </ReactBootstrap.Nav>
         );
+      }
+
+      function Routing(){
+          const [page, setPage] = useState("home")
+
+          let href = ""
+          if(page==='home'){
+              href= <ReactButton/>
+          }
+          else if(page==="stopwatch"){
+              href = <ClockApp/>
+          }else if(page==="client"){
+              href = <PicsumApp/>
+          }
+          return(
+              <div>
+                  <ReactBootstrap.Nav
+                      activeKey="/home"
+                      onSelect={(selectedKey) =>{ setPage(selectedKey);}}
+                  >
+                      <NavItem  eventKey="home" name="Active" />
+                      <NavItem  eventKey="stopwatch" name="Stopwatch"/>
+                      <NavItem  eventKey="client" name="Picsum"/>
+                  </ReactBootstrap.Nav>
+                  {href}
+              </div>
+
+          )
       }
 
       function ReactButton() {
         return (
           <ReactBootstrap.Card style={{ width: '18rem' }}>
-            <ReactBootstrap.Card.Img variant="top" src="https://en.wikipedia.org/wiki/Image#/media/File:Image_created_with_a_mobile_phone.png" />
+            <ReactBootstrap.Card.Img variant="top" src="./Rat_guitar.jpg" />
             <ReactBootstrap.Card.Body>
               <ReactBootstrap.Card.Title>Image</ReactBootstrap.Card.Title>
               <ReactBootstrap.Card.Text>
-                Some quick example text to build on the card title and make up the
-                bulk of the card's content.
+                  A photo of a rat holding a hello kitty pink guitar. He must play a killer
+                  bass solo.
               </ReactBootstrap.Card.Text>
-              <ReactBootstrap.Button variant="primary">Go somewhere</ReactBootstrap.Button>
             </ReactBootstrap.Card.Body>
           </ReactBootstrap.Card>
         );
       }
-      
+
       
     // Example
     function App() {
         return(
-            <div>
-                <ReactNav />
-                <ReactButton />
-            </div>
+                <Routing />
         ) 
     }
 
